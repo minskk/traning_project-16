@@ -1,0 +1,41 @@
+version: "3.3"
+
+services:
+  db:
+    image: postgres:13
+    user: root
+    tty: true
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_PASSWORD=odoo
+      - POSTGRES_USER=user
+      - POSTGRES_DB=postgres
+
+  odoo:
+    image: odoo-amd64
+    user: user
+    tty: true
+    depends_on:
+      - db
+    environment:
+      - PYTHONUNBUFFERED=1
+    ports:
+      - 8069:8069
+      - 5678:5678
+
+    volumes: 
+      - /home/user/odoo/odoo:/home/user/odoo
+      - /home/user/odoo/projects/training_project-16/venv:/home/user/venv
+      - /home/user/odoo/projects/training_project-16/dev_project:/home/user/dev_project
+      - /home/user/odoo/odoo_backups:/home/user/backups
+      - /home/user/odoo/projects/training_project-16/docker_home/.local:/home/user/.local
+      - /home/user/odoo/projects/training_project-16/docker_home/.cache:/home/user/.cache
+      - /home/user/odoo/odoo_projects/github.com/aayartsev/odoo_demo_project:/home/user/extra-addons/odoo_demo_project
+      - /home/user/odoo/projects/training_project-16/.flake8:/home/user/extra-addons/odoo_demo_project/.flake8
+      - /home/user/odoo/projects/training_project-16/.pre-commit-config.yaml:/home/user/extra-addons/odoo_demo_project/.pre-commit-config.yaml
+      - /home/user/odoo/projects/training_project-16/.pylintrc:/home/user/extra-addons/odoo_demo_project/.pylintrc
+      - /home/user/odoo/projects/training_project-16/.pylintrc-mandatory:/home/user/extra-addons/odoo_demo_project/.pylintrc-mandatory
+
+
+    command: bash -c ' cd /home/user && source /home/user/venv/bin/activate && python3 /home/user/dev_project/db_management.py --db-lang en_US --db-country_code None --default_password admin --default_login admin --create_demo True --config_base64_data eyJvcHRpb25zIjogeyJhZGRvbnNfcGF0aCI6ICIvaG9tZS91c2VyL29kb28vYWRkb25zLC9ob21lL3VzZXIvb2Rvby9vZG9vL2FkZG9ucywvaG9tZS91c2VyL2V4dHJhLWFkZG9ucy9vZG9vX2RlbW9fcHJvamVjdCIsICJjc3ZfaW50ZXJuYWxfc2VwIjogIiwiLCAiZGF0YV9kaXIiOiAiL2hvbWUvdXNlci8ubG9jYWwvc2hhcmUvT2RvbyIsICJkYl9ob3N0IjogImRiIiwgImRiX21heGNvbm4iOiAiNjQiLCAiZGJfbmFtZSI6ICJGYWxzZSIsICJkYl9wYXNzd29yZCI6ICJvZG9vIiwgImRiX3BvcnQiOiAiNTQzMiIsICJkYl9zc2xtb2RlIjogInByZWZlciIsICJkYl90ZW1wbGF0ZSI6ICJ0ZW1wbGF0ZTAiLCAiZGJfdXNlciI6ICJ1c2VyIiwgImRiZmlsdGVyIjogIiIsICJkZW1vIjogInt9IiwgImVtYWlsX2Zyb20iOiAiRmFsc2UiLCAiZnJvbV9maWx0ZXIiOiAiRmFsc2UiLCAiZ2VvaXBfZGF0YWJhc2UiOiAiL3Vzci9zaGFyZS9HZW9JUC9HZW9MaXRlMi1DaXR5Lm1tZGIiLCAiaHR0cF9lbmFibGUiOiAiVHJ1ZSIsICJodHRwX2ludGVyZmFjZSI6ICIiLCAiaHR0cF9wb3J0IjogIjgwNjkiLCAiaW1wb3J0X3BhcnRpYWwiOiAiIiwgImxpbWl0X21lbW9yeV9oYXJkIjogIjI2ODQzNTQ1NjAiLCAibGltaXRfbWVtb3J5X3NvZnQiOiAiMjE0NzQ4MzY0OCIsICJsaW1pdF9yZXF1ZXN0IjogIjgxOTIiLCAibGltaXRfdGltZV9jcHUiOiAiNjAiLCAibGltaXRfdGltZV9yZWFsIjogIjk5OTk5IiwgImxpbWl0X3RpbWVfcmVhbF9jcm9uIjogIi0xIiwgImxpc3RfZGIiOiAiVHJ1ZSIsICJsb2dfZGIiOiAiRmFsc2UiLCAibG9nX2RiX2xldmVsIjogIndhcm5pbmciLCAibG9nX2hhbmRsZXIiOiAiOklORk8iLCAibG9nX2xldmVsIjogImluZm8iLCAibG9nZmlsZSI6ICIiLCAibWF4X2Nyb25fdGhyZWFkcyI6ICIyIiwgIm9zdl9tZW1vcnlfYWdlX2xpbWl0IjogIkZhbHNlIiwgIm9zdl9tZW1vcnlfY291bnRfbGltaXQiOiAiRmFsc2UiLCAicGdfcGF0aCI6ICIiLCAicGlkZmlsZSI6ICIiLCAicHJveHlfbW9kZSI6ICJGYWxzZSIsICJyZXBvcnRneiI6ICJGYWxzZSIsICJzY3JlZW5jYXN0cyI6ICIiLCAic2NyZWVuc2hvdHMiOiAiL3RtcC9vZG9vX3Rlc3RzIiwgInNlcnZlcl93aWRlX21vZHVsZXMiOiAiYmFzZSx3ZWIiLCAic210cF9wYXNzd29yZCI6ICJGYWxzZSIsICJzbXRwX3BvcnQiOiAiMjUiLCAic210cF9zZXJ2ZXIiOiAibG9jYWxob3N0IiwgInNtdHBfc3NsIjogIkZhbHNlIiwgInNtdHBfc3NsX2NlcnRpZmljYXRlX2ZpbGVuYW1lIjogIkZhbHNlIiwgInNtdHBfc3NsX3ByaXZhdGVfa2V5X2ZpbGVuYW1lIjogIkZhbHNlIiwgInNtdHBfdXNlciI6ICJGYWxzZSIsICJzeXNsb2ciOiAiRmFsc2UiLCAidGVzdF9lbmFibGUiOiAiRmFsc2UiLCAidGVzdF9maWxlIjogIiIsICJ0ZXN0X3RhZ3MiOiAiTm9uZSIsICJ0cmFuc2llbnRfYWdlX2xpbWl0IjogIjEuMCIsICJ0cmFuc2xhdGVfbW9kdWxlcyI6ICJbJ2FsbCddIiwgInVuYWNjZW50IjogIkZhbHNlIiwgInVwZ3JhZGVfcGF0aCI6ICIiLCAid2l0aG91dF9kZW1vIjogIlRydWUiLCAid29ya2VycyI6ICIwIn19 --odoo_dir /home/user/odoo -c /home/user/odoo.conf -d new_db && python3 -u -m debugpy --listen 0.0.0.0:5678 /home/user/odoo/odoo-bin -c /home/user/odoo.conf --limit-time-real 99999 -d new_db -i first_module -u first_module'
